@@ -4,7 +4,27 @@
 
 # Home page
 GET     /                           controllers.Application.index
-GET     /db                         controllers.Application.db
+GET     /newpage                    controllers.Application.newpage
+GET     /div                        controllers.Application.div(msg: Option[String])
+
+# DB main
+GET     /db                         controllers.Database.selectRESTjson
+GET     /db/reset                   controllers.Database.reset
+
+# DB test anorm
+GET     /db/anorm                   controllers.Database.indexAnorm(key: String ?= "key7")
+POST    /db/anorm                   controllers.Database.insertREST(key: String, value: String, desc: String)
+PUT     /db/anorm                   controllers.Database.updateREST(key: String, value: String, desc: String)
+
+# DB JSON
+GET     /db/json                    controllers.Database.selectRESTjson
+POST    /db/json                    controllers.Database.insertRESTjson
+
+# DB find key
+GET     /db/:key                    controllers.Database.findRESTjson(key: String)
+
+# DB test multiple body parser
+POST    /testAction                 controllers.Database.testAction
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
