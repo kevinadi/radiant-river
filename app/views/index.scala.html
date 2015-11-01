@@ -13,17 +13,39 @@ incrementstate: @controllers.Counter.incrementstate
 incrementstate: @controllers.Counter.incrementstate
 </pre>
 
+<div>
+  <table>
+  <tr><th align="left">REST test</th></tr>
+  <tr><td>
+  <button id="newdiv" onclick="javascript:newdiv('divs')">Click</button>
+  <button id="newdiv" onclick="javascript:newdivrest('divs','msg')">Click Rest</button>
+  <input type="text" id="msg">
+  <button id="emptydiv" onclick="javascript:emptydiv('divs')">Clear</button>
+  <div id="divs"></div>
+  </td></tr>
+  </table>
+</div>
 
-<button id="newdiv" onclick="javascript:newdiv('divs')">Click</button>
-<button id="newdiv" onclick="javascript:newdivrest('divs','msg')">Click Rest</button>
-<input type="text" id="msg">
-<button id="emptydiv" onclick="javascript:emptydiv('divs')">Clear</button>
-<div id="divs"></div>
-
-
-<button id="execsql" onclick="javascript:execsql('sql')">Exec SQL</button>
-<button id="clearsql" onclick="javascript:emptydiv('sql')">Clear SQL</button>
-<button id="resetsql" onclick="javascript:resetsql('sql')">Reset SQL</button>
-<div id="sql"></div>
+<div>
+  <table>
+  <tr><th align="left">DB test</th></tr>
+  <tr><td>
+    Key <input type="text" id="key">
+    Val <input type="text" id="val">
+    Desc <input type="text" id="desc">
+    <button id="searchdb" onclick="javascript:searchdb('sql')">Search</button>
+    <button id="insertdb" onclick="javascript:insertdb('sql')">Insert/Update</button>
+    <button id="alldb" onclick="javascript:alldb('sql')">All DB</button>
+  </td></tr>
+  <tr><td>
+    <button id="execsql" onclick="javascript:execsql('sql')">Test SQL</button>
+    <button id="clearsql" onclick="javascript:emptydiv('sql')">Clear DIV</button>
+    <button id="resetsql" onclick="javascript:resetsql('sql')">Reset DB</button>
+  </td></tr>
+  <tr><td>
+    <div id="sql"></div>
+  </td></tr>
+  </table>
+</div>
 
 }

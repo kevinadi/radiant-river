@@ -9,6 +9,7 @@ GET     /div                        controllers.Application.div(msg: Option[Stri
 
 # DB main
 GET     /db                         controllers.Database.selectRESTjson
+POST    /db                         controllers.Database.insertRESTjson
 GET     /db/reset                   controllers.Database.reset
 
 # DB test anorm
