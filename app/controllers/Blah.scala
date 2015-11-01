@@ -33,10 +33,35 @@ object Blah {
     DB.withConnection { implicit conn =>
       val dropTableTest = SQL(
         """
-        DROP TABLE IF EXISTS TEST;
-        CREATE TABLE TEST (KEY TEXT, VALUE TEXT);
-        DROP TABLE IF EXISTS DESCRIPTION;
-        CREATE TABLE DESCRIPTION (KEY TEXT, DESCRIPTION TEXT);
+        DROP TABLE IF EXISTS MASTER;
+        CREATE TABLE MASTER (
+          KEY TEXT,
+          VALUE TEXT,
+          INPUTDATE TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        DROP TABLE IF EXISTS DETAIL;
+        CREATE TABLE DETAIL (
+          KEY TEXT,
+          DESCRIPTION TEXT,
+          INPUTDATE TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE OR REPLACE FUNCTION update_modified_column() 
+        RETURNS TRIGGER AS $$
+        BEGIN
+            NEW.INPUTDATE = now();
+            RETURN NEW; 
+        END;
+        $$ language 'plpgsql';
+
+        CREATE TRIGGER update_master_timestamp
+        BEFORE UPDATE ON master
+        FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+
+        CREATE TRIGGER update_detail_timestamp
+        BEFORE UPDATE ON detail
+        FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
         """
       ).execute()
     }
@@ -58,10 +83,10 @@ object Blah {
     DB.withConnection { implicit conn =>
       SQL(
         """
-        SELECT TEST.KEY,TEST.VALUE,DESCRIPTION.DESCRIPTION
-        FROM TEST
-        JOIN DESCRIPTION ON DESCRIPTION.KEY = TEST.KEY
-        ORDER BY TEST.KEY
+        SELECT MASTER.KEY,MASTER.VALUE,DETAIL.DESCRIPTION
+        FROM MASTER
+        JOIN DETAIL ON DETAIL.KEY = MASTER.KEY
+        ORDER BY MASTER.KEY
         """
       ).as(Blah.simple *)
     }
@@ -75,10 +100,10 @@ object Blah {
     DB.withConnection { implicit conn =>
       SQL(
         """
-        SELECT TEST.KEY,TEST.VALUE,DESCRIPTION.DESCRIPTION
-        FROM TEST
-        JOIN DESCRIPTION ON DESCRIPTION.KEY = TEST.KEY
-        WHERE TEST.KEY = {key}
+        SELECT MASTER.KEY,MASTER.VALUE,DETAIL.DESCRIPTION
+        FROM MASTER
+        JOIN DETAIL ON DETAIL.KEY = MASTER.KEY
+        WHERE MASTER.KEY = {key}
         """
       ).on('key -> key).as(Blah.simple *)
     }
@@ -93,14 +118,14 @@ object Blah {
 
       SQL(
         """
-        INSERT INTO TEST (KEY,VALUE) VALUES ({key},{value})
+        INSERT INTO MASTER (KEY,VALUE) VALUES ({key},{value})
         """
       ).on('key -> blah.key, 'value -> blah.value)
        .executeUpdate()
 
       SQL(
         """
-        INSERT INTO DESCRIPTION (KEY,DESCRIPTION) VALUES ({key},{desc})
+        INSERT INTO DETAIL (KEY,DESCRIPTION) VALUES ({key},{desc})
         """
       ).on('key -> blah.key, 'desc -> blah.desc)
        .executeUpdate()
@@ -116,14 +141,14 @@ object Blah {
 
       SQL(
         """
-        UPDATE TEST SET VALUE = {value} WHERE KEY = {key}
+        UPDATE MASTER SET VALUE = {value} WHERE KEY = {key}
         """
       ).on('key -> blah.key, 'value -> blah.value)
        .executeUpdate()
 
       SQL(
         """
-        UPDATE DESCRIPTION SET DESCRIPTION = {desc} WHERE KEY = {key}
+        UPDATE DETAIL SET DESCRIPTION = {desc} WHERE KEY = {key}
         """
       ).on('key -> blah.key, 'desc -> blah.desc)
        .executeUpdate()
